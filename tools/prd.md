@@ -14,11 +14,17 @@ managing Knowledges and Files inside Open WebUI via AI agents.
    - List files for the current chat or a specific knowledge base.
    - Delete files if the current user owns them.
 
+3. **OpenWebUI API Tool (`openwebui_tool.py`)**
+   - Communicates with the Open WebUI REST API using an authentication token.
+   - Offers the same operations as the above tools but via HTTP requests.
+
 Both tools rely on the existing `open_webui` Python package and mirror the
 behaviour of the API endpoints. They are designed to be called from chat based
 workflows with the following environment variables:
 
 - `UI_BASE_URL` – Base URL of the Web UI (defaults to `http://localhost:8080`).
+- `WEBUI_API_URL` – Base URL of the API (defaults to `http://localhost:8080`).
+- `WEBUI_JWT` – JWT token used for authentication with the API.
 
 ## Usage Overview
 
