@@ -5,6 +5,9 @@ import traceback
 from typing import Callable, Any
 from datetime import datetime
 
+# Reuse REST helpers for file operations
+from . import openwebui_tool
+
 # \u2714\ufe0f правильний імпорт для Open WebUI ≥ 0.6.x
 from open_webui.models.knowledge import (
     Knowledges,
@@ -26,6 +29,7 @@ class EventEmitter:
         description: str,
         status: str = "in_progress",
         done: bool = False,
+        progress: int | None = None,
     ):
         if self._emitter:
             await self._emitter(
@@ -35,6 +39,9 @@ class EventEmitter:
                         "status": status,
                         "description": description,
                         "done": done,
+                        "progress": (
+                            100 if done else 0 if progress is None else progress
+                        ),
                     },
                 }
             )
@@ -277,3 +284,56 @@ class Tools:
             err_msg = f"Failed to delete knowledge: {exc}"
             await emitter.emit(err_msg, status="error", done=True)
             return json.dumps({"message": err_msg, "trace": traceback.format_exc()})
+
+    # ---------- add_file ----------
+    async def add_file(
+        self,
+        knowledge_id: str,
+        file_id: str,
+        *,
+        __user__: dict | None = None,
+        __event_emitter__: Callable[[dict], Any] | None = None,
+    ) -> str:
+        """Attach a file to a knowledge base and report count changes."""
+
+        emitter = EventEmitter(__event_emitter__)
+        user_id = (__user__ or {}).get("id")
+
+        if not user_id:
+            await emitter.emit("Missing user context.", status="error", done=True)
+            return json.dumps({"message": "Missing user context"})
+
+        knowledge = Knowledges.get_knowledge_by_id(knowledge_id)
+        if not knowledge:
+            await emitter.emit("Knowledge not found.", status="error", done=True)
+            return json.dumps({"message": "Knowledge not found"})
+
+        if knowledge.user_id != user_id:
+            await emitter.emit("Access denied.", status="error", done=True)
+            return json.dumps({"message": "Access denied"})
+
+        prev_count = len((knowledge.data or {}).get("file_ids", []))
+
+        api_tools = openwebui_tool.Tools()
+        await api_tools.add_file_to_knowledge(
+            knowledge_id,
+            file_id,
+            __user__=__user__,
+            __event_emitter__=__event_emitter__,
+        )
+
+        knowledge = Knowledges.get_knowledge_by_id(knowledge_id)
+        new_count = (
+            len((knowledge.data or {}).get("file_ids", [])) if knowledge else prev_count
+        )
+
+        await emitter.emit("File attached.", status="success", done=True, progress=100)
+
+        return json.dumps(
+            {
+                "file_id": file_id,
+                "prev_count": prev_count,
+                "new_count": new_count,
+            },
+            ensure_ascii=False,
+        )
