@@ -238,6 +238,27 @@ If you are running Open WebUI in an offline environment, you can set the `HF_HUB
 export HF_HUB_OFFLINE=1
 ```
 
+### Running a Pipeline via `run_pipeline`
+
+Open WebUI exposes complex operations through pipelines. You can trigger any
+permitted pipeline from the command line using the `run_pipeline` endpoint of
+your Pipelines service. The example below moves a file between knowledge bases.
+
+```bash
+curl -X POST "$PIPE_URL/run" \
+  -H "Authorization: Bearer $PIPE_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "pipe_id": "move_file_pipe",
+    "metadata": {
+      "src_kb_id": "SOURCE_ID",
+      "dst_kb_id": "DEST_ID",
+      "file_id": "FILE_ID"
+    },
+    "user_prompt": "Move file"
+  }'
+```
+
 ## What's Next? 🌟
 
 Discover upcoming features on our roadmap in the [Open WebUI Documentation](https://docs.openwebui.com/roadmap/).

@@ -97,6 +97,17 @@ User ──> LLM (function‑calling) ──> run_pipeline Tool
 3. **Long copy** (>30 s)
    Pipeline streams progress tokens (`[#####.....] 50 %`) → Tool proxies → WebUI progress bubble animates.
 
+### 5.1 Example cURL
+
+Call the pipeline server directly using `run_pipeline` parameters:
+
+```bash
+curl -X POST "$PIPE_URL/run" \
+  -H "Authorization: Bearer $PIPE_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"pipe_id":"move_file_pipe","metadata":{"src_kb_id":"123","dst_kb_id":"456","file_id":"abc"}}'
+```
+
 ---
 
 ## 6 · Non‑Goals
