@@ -259,6 +259,18 @@ curl -X POST "$PIPE_URL/run" \
   }'
 ```
 
+### Visualizing Multi-Step Pipelines
+
+Complex pipelines can contain several steps. Open WebUI renders these as a
+Mermaid diagram for quick overview:
+
+```mermaid
+graph LR
+    A[Validate input] --> B[Add file to destination KB]
+    B --> C[Remove file from source KB]
+    C --> D[Done]
+```
+
 ### Pipeline Management
 
 Pipeline definitions are stored inside the `pipelines/` directory. Call

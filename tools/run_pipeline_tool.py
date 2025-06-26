@@ -21,7 +21,11 @@ class EventEmitter:
         self._emitter = emitter
 
     async def emit(
-        self, description: str, status: str = "in_progress", done: bool = False
+        self,
+        description: str,
+        status: str = "in_progress",
+        done: bool = False,
+        progress: int | None = None,
     ) -> None:
         if self._emitter:
             await self._emitter(
@@ -31,6 +35,9 @@ class EventEmitter:
                         "status": status,
                         "description": description,
                         "done": done,
+                        "progress": (
+                            100 if done else 0 if progress is None else progress
+                        ),
                     },
                 }
             )
