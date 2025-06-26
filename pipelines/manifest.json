@@ -1,0 +1,8 @@
+[
+    {
+        "id": "move_file_pipe",
+        "name": "Move File between KBs",
+        "group": "kb_admin",
+        "desc": "Move a file from one knowledge base to another"
+    }
+]
