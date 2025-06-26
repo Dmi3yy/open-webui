@@ -129,6 +129,9 @@ curl -X POST "$PIPE_URL/run" \
 | **T‑7** | **Docs & examples** | DX | README: how to call `run_pipeline`, sample cURL. |
 | **T‑8** | **Deprecate old tools** (`get_files_from_knowledge`, move logic) | BE | Mark with `@deprecated`, hide from spec. |
 
+Deprecated tool functions should use ``tools.decorators.deprecated`` so they
+are automatically excluded from the function spec.
+
 ---
 
 ## 8 · Acceptance Criteria
