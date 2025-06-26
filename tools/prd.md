@@ -54,6 +54,7 @@ User ──> LLM (function‑calling) ──> run_pipeline Tool
 | **Streaming** | If caller sets `stream=true`, proxy Server‑Sent Events chunk‑for‑chunk. |
 | **Errors** | On non‑2xx, return `{ "error": {code, message} }` and status event “error”. |
 | **Permissions** | `pipe_id` must be present in `allowed_pipelines` resolved for that user (see 4.3). |
+| **Implementation** | Request payloads are validated with `pydantic.BaseModel`. |
 
 ### 4.2 Pipeline contract
 | Field | Must |

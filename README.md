@@ -276,7 +276,8 @@ system prompt stays in sync.
 ### Tools Overview
 
 Helper modules located in `tools/` provide a thin wrapper around the WebUI API
-and pipelines:
+and pipelines. All HTTP calls are asynchronous via `aiohttp`, and payloads are
+validated with Pydantic models:
 
 - `openwebui_tool.py` &ndash; REST API helper with progress events.
 - `knowledge_tool.py` &ndash; create, list and delete knowledges.
