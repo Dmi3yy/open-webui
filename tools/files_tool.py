@@ -6,6 +6,7 @@ from typing import Callable, Any
 
 from pydantic import Field
 from open_webui.models.files import Files, FileModel
+from .decorators import deprecated
 
 # Base address of the WebUI used to build links for returned files. This can
 # be overridden with the `UI_BASE_URL` environment variable.
@@ -79,6 +80,7 @@ class Tools:
                 {"message": str(exc), "trace": traceback.format_exc(limit=5)}
             )
 
+    @deprecated
     async def get_files_from_knowledge(
         self,
         knowledge_id: str = Field(..., description="Knowledge collection ID."),
@@ -86,7 +88,7 @@ class Tools:
         __user__: dict | None = None,
         __event_emitter__: Callable[[dict], Any] | None = None,
     ) -> str:
-        """List files attached to a Knowledge collection."""
+        """List files attached to a Knowledge collection. Deprecated."""
         emitter = EventEmitter(__event_emitter__)
         user_id = (__user__ or {}).get("id")
 

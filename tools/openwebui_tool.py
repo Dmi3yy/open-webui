@@ -11,6 +11,7 @@ from open_webui.env import (
     AIOHTTP_CLIENT_TIMEOUT,
     AIOHTTP_CLIENT_SESSION_SSL,
 )
+from .decorators import deprecated
 
 # Base URL of the Open WebUI API. This can be overridden with WEBUI_API_URL.
 API_BASE_URL = os.getenv("WEBUI_API_URL", "http://localhost:8080")
@@ -200,6 +201,7 @@ class Tools:
         await emitter.emit("Error contacting API", "error", True)
         return json.dumps(data, ensure_ascii=False)
 
+    @deprecated
     async def get_files_from_knowledge(
         self,
         knowledge_id: str,
@@ -207,6 +209,7 @@ class Tools:
         __user__: Optional[dict] = None,
         __event_emitter__: Optional[Callable[[dict], Any]] = None,
     ) -> str:
+        """List files attached to a Knowledge collection. Deprecated."""
         emitter = EventEmitter(__event_emitter__)
         await emitter.emit("Fetching knowledge files...")
         url = "/api/v1/files/"
