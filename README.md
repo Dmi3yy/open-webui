@@ -273,6 +273,20 @@ export PIPELINE_ACL_PATH=/path/to/acl.json
 Update `pipelines/manifest.json` whenever you add new pipeline components so the
 system prompt stays in sync.
 
+### Tools Overview
+
+Helper modules located in `tools/` provide a thin wrapper around the WebUI API
+and pipelines:
+
+- `openwebui_tool.py` &ndash; REST API helper with progress events.
+- `knowledge_tool.py` &ndash; create, list and delete knowledges.
+- `files_tool.py` &ndash; list and delete uploaded files.
+- `run_pipeline_tool.py` &ndash; invoke external pipelines with optional
+  streaming.
+
+Each function accepts an optional `event_emitter` callback to stream status
+updates back to the caller.
+
 ## What's Next? 🌟
 
 Discover upcoming features on our roadmap in the [Open WebUI Documentation](https://docs.openwebui.com/roadmap/).
