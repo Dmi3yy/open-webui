@@ -239,3 +239,51 @@ class Tools:
         else:
             await emitter.emit("Deletion failed", "error", True)
         return json.dumps(data, ensure_ascii=False)
+
+    async def add_file_to_knowledge(
+        self,
+        knowledge_id: str,
+        file_id: str,
+        *,
+        __user__: Optional[dict] = None,
+        __event_emitter__: Optional[Callable[[dict], Any]] = None,
+    ) -> str:
+        """Attach a file to the given knowledge base."""
+        emitter = EventEmitter(__event_emitter__)
+        await emitter.emit("Adding file to knowledge…")
+        url = f"/api/v1/knowledge/{knowledge_id}/file/add"
+        status, data = await self._request(
+            "POST",
+            url,
+            json_body={"file_id": file_id},
+            user=__user__,
+        )
+        if status == 200:
+            await emitter.emit("File added", "success", True)
+        else:
+            await emitter.emit("Failed to add file", "error", True)
+        return json.dumps(data, ensure_ascii=False)
+
+    async def remove_file_from_knowledge(
+        self,
+        knowledge_id: str,
+        file_id: str,
+        *,
+        __user__: Optional[dict] = None,
+        __event_emitter__: Optional[Callable[[dict], Any]] = None,
+    ) -> str:
+        """Detach a file from the given knowledge base."""
+        emitter = EventEmitter(__event_emitter__)
+        await emitter.emit("Removing file from knowledge…")
+        url = f"/api/v1/knowledge/{knowledge_id}/file/remove"
+        status, data = await self._request(
+            "POST",
+            url,
+            json_body={"file_id": file_id},
+            user=__user__,
+        )
+        if status == 200:
+            await emitter.emit("File removed", "success", True)
+        else:
+            await emitter.emit("Failed to remove file", "error", True)
+        return json.dumps(data, ensure_ascii=False)
