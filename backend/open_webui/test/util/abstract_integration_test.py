@@ -1,9 +1,14 @@
 import logging
 import os
 import time
+from importlib import util
+
+import pytest
+
+if util.find_spec("docker") is None:
+    pytest.skip("docker is required for integration tests", allow_module_level=True)
 
 import docker
-import pytest
 from docker import DockerClient
 from pytest_docker.plugin import get_docker_ip
 from fastapi.testclient import TestClient

@@ -1,7 +1,16 @@
 import io
 import os
-import boto3
+from importlib import util
+
 import pytest
+
+pytest.importorskip("boto3")
+pytest.importorskip("moto")
+pytest.importorskip("gcp_storage_emulator.server")
+pytest.importorskip("google.cloud.storage")
+pytest.importorskip("azure.storage.blob")
+
+import boto3
 from botocore.exceptions import ClientError
 from moto import mock_aws
 from open_webui.storage import provider

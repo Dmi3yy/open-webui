@@ -9,6 +9,8 @@ from typing import Any, Callable, Optional
 import aiohttp
 
 from open_webui.env import AIOHTTP_CLIENT_TIMEOUT, AIOHTTP_CLIENT_SESSION_SSL
+from pipelines.loader import load_manifest
+from pipelines.acl import is_pipe_allowed
 
 PIPE_URL = os.getenv("PIPE_URL", "http://localhost:8081")
 PIPE_KEY = os.getenv("PIPE_KEY", "")
@@ -39,11 +41,17 @@ async def run_pipeline(
     metadata: dict[str, Any],
     user_prompt: str | None = None,
     *,
+    __user__: dict | None = None,
     stream: bool = False,
     __event_emitter__: Callable[[dict], Any] | None = None,
 ) -> str:
     """Call external pipeline service and return JSON string."""
     emitter = EventEmitter(__event_emitter__)
+    manifest = load_manifest()
+    if not is_pipe_allowed(pipe_id, __user__, manifest):
+        await emitter.emit("Pipeline not permitted", "error", True)
+        return json.dumps({"error": {"code": "forbidden", "message": "Not allowed"}})
+
     await emitter.emit("Calling pipeline...")
 
     headers = {
