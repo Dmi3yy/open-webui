@@ -6,6 +6,8 @@ import json
 import os
 from typing import Any, Callable, Optional
 
+from pydantic import BaseModel
+
 import aiohttp
 
 from open_webui.env import AIOHTTP_CLIENT_TIMEOUT, AIOHTTP_CLIENT_SESSION_SSL
@@ -14,6 +16,14 @@ from pipelines.acl import is_pipe_allowed
 
 PIPE_URL = os.getenv("PIPE_URL", "http://localhost:8081")
 PIPE_KEY = os.getenv("PIPE_KEY", "")
+
+
+class PipelineRunPayload(BaseModel):
+    """Payload for calling the pipeline service."""
+
+    pipe_id: str
+    metadata: dict[str, Any]
+    user_prompt: str | None = None
 
 
 class EventEmitter:
@@ -66,7 +76,9 @@ async def run_pipeline(
         "Content-Type": "application/json",
     }
     params = {"stream": "true" if stream else "false"}
-    payload = {"pipe_id": pipe_id, "metadata": metadata, "user_prompt": user_prompt}
+    payload = PipelineRunPayload(
+        pipe_id=pipe_id, metadata=metadata, user_prompt=user_prompt
+    )
 
     async with aiohttp.ClientSession(
         timeout=aiohttp.ClientTimeout(total=AIOHTTP_CLIENT_TIMEOUT)
@@ -75,7 +87,7 @@ async def run_pipeline(
             f"{PIPE_URL}/run",
             headers=headers,
             params=params,
-            json=payload,
+            json=payload.model_dump(exclude_none=True),
             ssl=AIOHTTP_CLIENT_SESSION_SSL,
         ) as resp:
             if stream:

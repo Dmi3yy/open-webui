@@ -3,6 +3,8 @@ import os
 import json
 from typing import Callable, Any, Optional
 
+from pydantic import BaseModel
+
 # Third party imports
 import aiohttp
 
@@ -17,6 +19,19 @@ from .decorators import deprecated
 API_BASE_URL = os.getenv("WEBUI_API_URL", "http://localhost:8080")
 # JWT used for authenticating against the API.
 API_TOKEN = os.getenv("WEBUI_JWT", "")
+
+
+class KnowledgeCreatePayload(BaseModel):
+    """Payload for creating a knowledge entry."""
+
+    name: str
+    description: str
+
+
+class FileIdPayload(BaseModel):
+    """Payload containing a file ID."""
+
+    file_id: str
 
 
 class EventEmitter:
@@ -76,17 +91,21 @@ class Tools:
         method: str,
         endpoint: str,
         *,
-        json_body: Optional[dict] = None,
+        json_body: BaseModel | dict | None = None,
         user: Optional[dict] = None,
     ) -> tuple[int, dict]:
         async with aiohttp.ClientSession(
             timeout=self.timeout, trust_env=True
         ) as session:
             try:
+                if isinstance(json_body, BaseModel):
+                    payload = json_body.model_dump(exclude_none=True)
+                else:
+                    payload = json_body
                 async with session.request(
                     method,
                     f"{self.base_url}{endpoint}",
-                    json=json_body,
+                    json=payload,
                     headers=self._headers(user),
                     ssl=AIOHTTP_CLIENT_SESSION_SSL,
                 ) as resp:
@@ -110,10 +129,11 @@ class Tools:
     ) -> str:
         emitter = EventEmitter(__event_emitter__)
         await emitter.emit("Creating knowledge entry...")
+        payload = KnowledgeCreatePayload(name=name, description=description)
         status, data = await self._request(
             "POST",
             "/api/v1/knowledge/create",
-            json_body={"name": name, "description": description},
+            json_body=payload,
             user=__user__,
         )
         if status == 200:
@@ -259,10 +279,11 @@ class Tools:
         emitter = EventEmitter(__event_emitter__)
         await emitter.emit("Adding file to knowledge…")
         url = f"/api/v1/knowledge/{knowledge_id}/file/add"
+        payload = FileIdPayload(file_id=file_id)
         status, data = await self._request(
             "POST",
             url,
-            json_body={"file_id": file_id},
+            json_body=payload,
             user=__user__,
         )
         if status == 200:
@@ -283,10 +304,11 @@ class Tools:
         emitter = EventEmitter(__event_emitter__)
         await emitter.emit("Removing file from knowledge…")
         url = f"/api/v1/knowledge/{knowledge_id}/file/remove"
+        payload = FileIdPayload(file_id=file_id)
         status, data = await self._request(
             "POST",
             url,
-            json_body={"file_id": file_id},
+            json_body=payload,
             user=__user__,
         )
         if status == 200:
