@@ -80,9 +80,14 @@ async def run_pipeline(
                             continue
                         if __event_emitter__:
                             await __event_emitter__(event)
+                if 200 <= resp.status < 300:
+                    await emitter.emit("Pipeline finished", "success", True)
+                else:
+                    await emitter.emit("Pipeline failed", "error", True)
                 return ""
+
             data = await resp.json(content_type=None)
-            if resp.status >= 200 and resp.status < 300:
+            if 200 <= resp.status < 300:
                 await emitter.emit("Pipeline finished", "success", True)
             else:
                 await emitter.emit("Pipeline failed", "error", True)
