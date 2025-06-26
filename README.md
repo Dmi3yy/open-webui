@@ -259,6 +259,20 @@ curl -X POST "$PIPE_URL/run" \
   }'
 ```
 
+### Pipeline Management
+
+Pipeline definitions are stored inside the `pipelines/` directory. Call
+`pipelines.prompt.setup()` during startup to load `pipelines/manifest.json` and
+append the permitted pipelines to the system prompt. To adjust permissions,
+provide an ACL file using the `PIPELINE_ACL_PATH` environment variable:
+
+```bash
+export PIPELINE_ACL_PATH=/path/to/acl.json
+```
+
+Update `pipelines/manifest.json` whenever you add new pipeline components so the
+system prompt stays in sync.
+
 ## What's Next? 🌟
 
 Discover upcoming features on our roadmap in the [Open WebUI Documentation](https://docs.openwebui.com/roadmap/).
