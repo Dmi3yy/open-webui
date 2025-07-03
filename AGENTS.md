@@ -1,8 +1,10 @@
 This repository contains custom tooling under the `tools/` directory. When
 modifying or extending these tools, always reference this file first.
 
-Key points:
+- Key points:
 - New utilities live inside `tools/` without touching existing backend code.
+- Lightweight helper functions can be placed in the `function/` directory next
+  to `tools`.
 - `knowledge_tool.py` and `files_tool.py` expose high level functions for
   managing Knowledges and Files via the Open WebUI models.
 - Documentation of the work resides in `tools/prd.md`.
@@ -12,6 +14,7 @@ Key points:
 - `backend/open_webui` – main FastAPI application with all models and routers.
 - `src` – Svelte frontend sources.
 - `tools` – helper modules used by AI agents.
+- `function` – reusable functions that act as simple utilities.
 
 ## Coding style
 
