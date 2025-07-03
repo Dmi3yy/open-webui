@@ -7,6 +7,7 @@ from typing import Any, Awaitable, Callable, Optional
 
 import aiohttp
 from pydantic import BaseModel, Field
+from open_webui.models.files import Files
 
 from open_webui.utils.auth import create_token
 from open_webui.env import AIOHTTP_CLIENT_TIMEOUT, AIOHTTP_CLIENT_SESSION_SSL
@@ -78,27 +79,23 @@ class Pipe:
     async def get_files_for_session(
         self, session_id: str, user: Optional[dict]
     ) -> list:
-        """Retrieve files for the current chat session via the REST API."""
-        params = {"session_id": session_id}
-        headers: dict[str, str] = {}
-        token = self.valves.openwebui_api_token
-        if not token and user and user.get("id"):
-            # Generate JWT for the current user if token not provided
-            token = create_token({"id": user["id"]})
-        if token:
-            headers["Authorization"] = f"Bearer {token}"
-        async with aiohttp.ClientSession(
-            timeout=aiohttp.ClientTimeout(total=AIOHTTP_CLIENT_TIMEOUT)
-        ) as session:
-            async with session.get(
-                self.valves.openwebui_api_url,
-                params=params,
-                headers=headers,
-                ssl=AIOHTTP_CLIENT_SESSION_SSL,
-            ) as resp:
-                resp.raise_for_status()
-                data = await resp.json()
-        return sorted(data, key=lambda x: x.get("created_at", 0))
+        """Retrieve files for the current chat session using the ORM."""
+        if not user or not user.get("id"):
+            return []
+
+        files = Files.get_files_by_user_id(user["id"])
+        matched: list[dict] = []
+
+        for f in files:
+            meta = f.meta or {}
+            data = meta.get("data", {}) if isinstance(meta, dict) else {}
+            if (
+                data.get("session_id") == session_id
+                or meta.get("session_id") == session_id
+            ):
+                matched.append(f.model_dump())
+
+        return sorted(matched, key=lambda x: x.get("created_at", 0))
 
     async def pipe(
         self,
